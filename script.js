@@ -1,4 +1,5 @@
 
+
 // Global variables
 let pointCount = 2;
 let currentPolynomial = null;
@@ -124,7 +125,7 @@ function formatPolynomial(coefficients) {
     for (let i = n - 1; i >= 0; i--) {
         const coeff = coefficients[i];
         
-        if (Math.abs(coeff) < 1e-10) continue; // Skip near-zero coefficients
+        if (Math.abs(coeff) < 1e-15) continue; // Skip near-zero coefficients
         
         let term = '';
         
@@ -133,13 +134,13 @@ function formatPolynomial(coefficients) {
             // First term
             if (coeff < 0) term += '-';
             if (Math.abs(coeff) !== 1 || i === 0) {
-                term += Math.abs(coeff).toFixed(6).replace(/\.?0+$/, '');
+                term += Math.abs(coeff).toFixed(13).replace(/\.?0+$/, '');
             }
         } else {
             // Subsequent terms
             term += coeff > 0 ? ' + ' : ' - ';
             if (Math.abs(coeff) !== 1 || i === 0) {
-                term += Math.abs(coeff).toFixed(6).replace(/\.?0+$/, '');
+                term += Math.abs(coeff).toFixed(13).replace(/\.?0+$/, '');
             }
         }
         
@@ -176,7 +177,7 @@ function formatPolynomialMath(coefficients) {
     for (let i = n - 1; i >= 0; i--) {
         const coeff = coefficients[i];
         
-        if (Math.abs(coeff) < 1e-10) continue;
+        if (Math.abs(coeff) < 1e-15) continue;
         
         let term = '';
         
@@ -185,14 +186,14 @@ function formatPolynomialMath(coefficients) {
             // First term
             if (coeff < 0) term += '-';
             if (Math.abs(coeff) !== 1 || i === 0) {
-                const coeffStr = Math.abs(coeff).toFixed(6).replace(/\.?0+$/, '');
+                const coeffStr = Math.abs(coeff).toFixed(13).replace(/\.?0+$/, '');
                 term += coeffStr;
             }
         } else {
             // Subsequent terms
             term += coeff > 0 ? ' + ' : ' - ';
             if (Math.abs(coeff) !== 1 || i === 0) {
-                const coeffStr = Math.abs(coeff).toFixed(6).replace(/\.?0+$/, '');
+                const coeffStr = Math.abs(coeff).toFixed(13).replace(/\.?0+$/, '');
                 term += coeffStr;
             }
         }
@@ -242,7 +243,7 @@ function evaluatePolynomial() {
         result += currentPolynomial[i] * Math.pow(x, i);
     }
     
-    const resultStr = result.toFixed(6).replace(/\.?0+$/, '');
+    const resultStr = result.toFixed(13).replace(/\.?0+$/, '');
     document.getElementById('evalResult').innerHTML = `
         <div class="polynomial-math">$$P(${x}) = ${resultStr}$$</div>
     `;
