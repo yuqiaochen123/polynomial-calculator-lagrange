@@ -1,3 +1,4 @@
+
 // Global variables
 let pointCount = 2;
 let currentPolynomial = null;
