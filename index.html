@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polynomial Calculator with Lagrange Interpolation</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Polynomial Calculator</h1>
+            <p>Calculate the polynomial that passes through given points using Lagrange Interpolation</p>
+        </header>
+
+        <main>
+            <section class="input-section">
+                <h2>Enter Points</h2>
+                <div class="points-container" id="pointsContainer">
+                    <div class="point-row">
+                        <label>Point 1:</label>
+                        <input type="number" step="any" placeholder="x" class="x-input">
+                        <input type="number" step="any" placeholder="y" class="y-input">
+                        <button type="button" class="remove-btn" onclick="removePoint(this)" disabled>Remove</button>
+                    </div>
+                    <div class="point-row">
+                        <label>Point 2:</label>
+                        <input type="number" step="any" placeholder="x" class="x-input">
+                        <input type="number" step="any" placeholder="y" class="y-input">
+                        <button type="button" class="remove-btn" onclick="removePoint(this)">Remove</button>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button type="button" onclick="addPoint()" class="add-btn">Add Point</button>
+                    <button type="button" onclick="calculatePolynomial()" class="calculate-btn">Compute Polynomial</button>
+                </div>
+            </section>
+
+            <section class="output-section">
+                <h2>Result</h2>
+                <div class="polynomial-display" id="polynomialDisplay">
+                    <p>Enter at least 2 points and click "Compute Polynomial" to see the result.</p>
+                </div>
+                
+                <div class="evaluation-section" id="evaluationSection" style="display: none;">
+                    <h3>Evaluate Polynomial</h3>
+                    <div class="eval-controls">
+                        <label for="evalX">Evaluate at x = </label>
+                        <input type="number" step="any" id="evalX" placeholder="Enter x value">
+                        <button type="button" onclick="evaluatePolynomial()" class="eval-btn">Evaluate</button>
+                    </div>
+                    <div class="eval-result" id="evalResult"></div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Developed by Yuqiao Chen</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
