@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polynomial Calculator with Lagrange Interpolation</title>
+    <title>Polynomial Modelling – Gaussian Elimination Helper</title>
+    
+    <!-- MathJax for mathematical notation -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>
@@ -14,62 +16,684 @@
             }
         };
     </script>
-    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        /* Clean, academic styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: white;
+            margin: 1.5rem 0;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+
+        /* Degree selector */
+        .degree-selector {
+            margin-bottom: 2rem;
+        }
+
+        .degree-selector label {
+            font-weight: 600;
+            margin-right: 1rem;
+        }
+
+        .degree-selector select {
+            padding: 0.5rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        /* Input table styling */
+        .input-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .input-table th,
+        .input-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .input-table th {
+            background: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+
+        .input-table input {
+            width: 100px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .input-table input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Button styling */
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.3s;
+            margin: 0.5rem;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        /* Matrix display */
+        .matrix-display {
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .matrix-table {
+            border-collapse: collapse;
+            margin: 1rem auto;
+            font-family: 'Courier New', monospace;
+        }
+
+        .matrix-table td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .matrix-table .augment-divider {
+            border-left: 3px solid #e74c3c;
+        }
+
+        /* Step display */
+        .step {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .step h4 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-operation {
+            font-style: italic;
+            color: #7f8c8d;
+            margin-bottom: 1rem;
+        }
+
+        /* Equations display */
+        .equations {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+
+        .equation {
+            margin: 0.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+        }
+
+        /* Final result */
+        .final-result {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .final-result h3 {
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        .final-polynomial {
+            font-size: 1.3rem;
+            font-family: 'Courier New', monospace;
+            background: rgba(255,255,255,0.1);
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .section {
+                padding: 1rem;
+            }
+            
+            .input-table input {
+                width: 80px;
+            }
+        }
+
+        /* Error styling */
+        .error {
+            background: #e74c3c;
+            color: white;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+
+        /* Hidden by default */
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Polynomial Calculator</h1>
-            <p>Calculate the polynomial that passes through given points using Lagrange Interpolation</p>
-        </header>
-
-        <main>
-            <section class="input-section">
-                <h2>Enter Points</h2>
-                <div class="points-container" id="pointsContainer">
-                    <div class="point-row">
-                        <label>Point 1:</label>
-                        <input type="number" step="any" placeholder="x" class="x-input">
-                        <input type="number" step="any" placeholder="y" class="y-input">
-                        <button type="button" class="remove-btn" onclick="removePoint(this)" disabled>Remove</button>
-                    </div>
-                    <div class="point-row">
-                        <label>Point 2:</label>
-                        <input type="number" step="any" placeholder="x" class="x-input">
-                        <input type="number" step="any" placeholder="y" class="y-input">
-                        <button type="button" class="remove-btn" onclick="removePoint(this)">Remove</button>
-                    </div>
-                </div>
-                
-                <div class="controls">
-                    <button type="button" onclick="addPoint()" class="add-btn">Add Point</button>
-                    <button type="button" onclick="calculatePolynomial()" class="calculate-btn">Compute Polynomial</button>
-                </div>
-            </section>
-
-            <section class="output-section">
-                <h2>Result</h2>
-                <div class="polynomial-display" id="polynomialDisplay">
-                    <p>Enter at least 2 points and click "Compute Polynomial" to see the result.</p>
-                </div>
-                
-                <div class="evaluation-section" id="evaluationSection" style="display: none;">
-                    <h3>Evaluate Polynomial</h3>
-                    <div class="eval-controls">
-                        <label for="evalX">Evaluate at x = </label>
-                        <input type="number" step="any" id="evalX" placeholder="Enter x value">
-                        <button type="button" onclick="evaluatePolynomial()" class="eval-btn">Evaluate</button>
-                    </div>
-                    <div class="eval-result" id="evalResult"></div>
-                </div>
-            </section>
-        </main>
-
-        <footer>
-            <p>Developed by Yuqiao Chen</p>
-        </footer>
+    <div class="header">
+        <h1>Polynomial Modelling – Gaussian Elimination Helper</h1>
+        <p>
+            This tool solves for polynomial coefficients using Gaussian elimination. 
+            Enter your data points and watch the step-by-step matrix operations unfold. 
+            Perfect for IB Mathematics Internal Assessments and understanding linear systems.
+        </p>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Degree Selection -->
+    <div class="section">
+        <h2>1. Select Polynomial Degree</h2>
+        <div class="degree-selector">
+            <label for="degreeSelect">Polynomial Degree:</label>
+            <select id="degreeSelect" onchange="updateInputTable()">
+                <option value="2">Quadratic (degree 2) - 3 points</option>
+                <option value="3" selected>Cubic (degree 3) - 4 points</option>
+                <option value="4">Quartic (degree 4) - 5 points</option>
+                <option value="5">Quintic (degree 5) - 6 points</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Input Section -->
+    <div class="section">
+        <h2>2. Enter Data Points</h2>
+        <p>Enter the coordinates of your data points. These will be used to construct the linear system.</p>
+        
+        <table class="input-table" id="inputTable">
+            <!-- Dynamic content will be inserted here -->
+        </table>
+        
+        <button class="btn" onclick="buildSystem()">Build System & Matrix</button>
+    </div>
+
+    <!-- Equations and Matrix Display -->
+    <div class="section hidden" id="equationsSection">
+        <h2>3. Generated System of Equations</h2>
+        <div id="equationsDisplay"></div>
+        
+        <h3>Augmented Matrix</h3>
+        <div class="matrix-display" id="matrixDisplay"></div>
+        
+        <button class="btn" onclick="performGaussianElimination()">Perform Gaussian Elimination</button>
+    </div>
+
+    <!-- Gaussian Elimination Steps -->
+    <div class="section hidden" id="stepsSection">
+        <h2>4. Gaussian Elimination Steps</h2>
+        <div id="stepsDisplay"></div>
+    </div>
+
+    <!-- Final Result -->
+    <div class="section hidden" id="resultSection">
+        <div class="final-result">
+            <h3>Final Polynomial Model</h3>
+            <div id="finalPolynomial"></div>
+            <div id="coefficientsDisplay"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentDegree = 3;
+        let dataPoints = [];
+        let augmentedMatrix = [];
+        let eliminationSteps = [];
+
+        // Default example data for different degrees
+        const exampleData = {
+            2: [
+                { x: 1.000, y: 2.500 },
+                { x: 2.000, y: 4.200 },
+                { x: 3.000, y: 6.800 }
+            ],
+            3: [
+                { x: 2.477, y: 5.031 },
+                { x: 3.148, y: 2.915 },
+                { x: 3.887, y: 2.425 },
+                { x: 4.307, y: 1.996 }
+            ],
+            4: [
+                { x: 1.000, y: 1.500 },
+                { x: 1.500, y: 2.200 },
+                { x: 2.000, y: 3.100 },
+                { x: 2.500, y: 4.000 },
+                { x: 3.000, y: 4.800 }
+            ],
+            5: [
+                { x: 0.500, y: 1.200 },
+                { x: 1.000, y: 2.100 },
+                { x: 1.500, y: 3.400 },
+                { x: 2.000, y: 4.900 },
+                { x: 2.500, y: 6.800 },
+                { x: 3.000, y: 9.100 }
+            ]
+        };
+
+        // Initialize the page
+        function updateInputTable() {
+            currentDegree = parseInt(document.getElementById('degreeSelect').value);
+            const numPoints = currentDegree + 1;
+            const table = document.getElementById('inputTable');
+            
+            // Clear existing content
+            table.innerHTML = '';
+            
+            // Create header
+            const headerRow = table.insertRow();
+            headerRow.innerHTML = '<th>Point</th><th>x-coordinate</th><th>y-coordinate</th>';
+            
+            // Create input rows with example data
+            for (let i = 0; i < numPoints; i++) {
+                const row = table.insertRow();
+                const examplePoint = exampleData[currentDegree][i];
+                
+                row.innerHTML = `
+                    <td>Point ${i + 1}</td>
+                    <td><input type="number" step="0.001" value="${examplePoint.x}" id="x${i}" /></td>
+                    <td><input type="number" step="0.001" value="${examplePoint.y}" id="y${i}" /></td>
+                `;
+            }
+            
+            // Hide other sections when degree changes
+            document.getElementById('equationsSection').classList.add('hidden');
+            document.getElementById('stepsSection').classList.add('hidden');
+            document.getElementById('resultSection').classList.add('hidden');
+        }
+
+        // Build the system of equations and augmented matrix
+        function buildSystem() {
+            try {
+                // Get input data
+                const numPoints = currentDegree + 1;
+                dataPoints = [];
+                
+                for (let i = 0; i < numPoints; i++) {
+                    const x = parseFloat(document.getElementById(`x${i}`).value);
+                    const y = parseFloat(document.getElementById(`y${i}`).value);
+                    
+                    if (isNaN(x) || isNaN(y)) {
+                        throw new Error(`Please enter valid numbers for Point ${i + 1}`);
+                    }
+                    
+                    dataPoints.push({ x, y });
+                }
+                
+                // Check for duplicate x values
+                const xValues = dataPoints.map(p => p.x);
+                const uniqueX = [...new Set(xValues)];
+                if (xValues.length !== uniqueX.length) {
+                    throw new Error('All x-coordinates must be unique');
+                }
+                
+                // Build augmented matrix
+                buildAugmentedMatrix();
+                
+                // Display equations
+                displayEquations();
+                
+                // Display matrix
+                displayMatrix(augmentedMatrix, 'matrixDisplay');
+                
+                // Show equations section
+                document.getElementById('equationsSection').classList.remove('hidden');
+                
+                // Hide steps and result sections
+                document.getElementById('stepsSection').classList.add('hidden');
+                document.getElementById('resultSection').classList.add('hidden');
+                
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Build the augmented matrix from data points
+        function buildAugmentedMatrix() {
+            const n = dataPoints.length;
+            augmentedMatrix = [];
+            
+            for (let i = 0; i < n; i++) {
+                const row = [];
+                const x = dataPoints[i].x;
+                const y = dataPoints[i].y;
+                
+                // Build row: [x^n, x^(n-1), ..., x^1, x^0, y]
+                for (let j = n - 1; j >= 0; j--) {
+                    row.push(Math.pow(x, j));
+                }
+                row.push(y); // Augmented part
+                
+                augmentedMatrix.push(row);
+            }
+        }
+
+        // Display the system of equations in readable form
+        function displayEquations() {
+            const equationsDiv = document.getElementById('equationsDisplay');
+            let html = '<div class="equations">';
+            
+            // Generate variable names (a, b, c, d, e, f)
+            const variables = ['a', 'b', 'c', 'd', 'e', 'f'];
+            
+            for (let i = 0; i < dataPoints.length; i++) {
+                const point = dataPoints[i];
+                let equation = '';
+                
+                // Build equation string
+                for (let j = 0; j < currentDegree + 1; j++) {
+                    const power = currentDegree - j;
+                    const coeff = Math.pow(point.x, power);
+                    
+                    if (j > 0) equation += ' + ';
+                    
+                    if (power === 0) {
+                        equation += `${variables[j]}`;
+                    } else if (power === 1) {
+                        equation += `${variables[j]}(${point.x.toFixed(3)})`;
+                    } else {
+                        equation += `${variables[j]}(${point.x.toFixed(3)})^${power}`;
+                    }
+                }
+                
+                equation += ` = ${point.y.toFixed(3)}`;
+                html += `<div class="equation">${equation}</div>`;
+            }
+            
+            html += '</div>';
+            equationsDiv.innerHTML = html;
+        }
+
+        // Display matrix as HTML table
+        function displayMatrix(matrix, containerId) {
+            const container = document.getElementById(containerId);
+            let html = '<table class="matrix-table">';
+            
+            for (let i = 0; i < matrix.length; i++) {
+                html += '<tr>';
+                for (let j = 0; j < matrix[i].length; j++) {
+                    const isAugmentDivider = j === matrix[i].length - 1;
+                    const cellClass = isAugmentDivider ? 'augment-divider' : '';
+                    const value = matrix[i][j].toFixed(3);
+                    html += `<td class="${cellClass}">${value}</td>`;
+                }
+                html += '</tr>';
+            }
+            
+            html += '</table>';
+            container.innerHTML = html;
+        }
+
+        // Perform Gaussian elimination with step-by-step display
+        function performGaussianElimination() {
+            try {
+                // Reset steps
+                eliminationSteps = [];
+                
+                // Create working copy of matrix
+                let workingMatrix = augmentedMatrix.map(row => [...row]);
+                const n = workingMatrix.length;
+                
+                // Store initial matrix
+                eliminationSteps.push({
+                    step: 0,
+                    operation: 'Initial augmented matrix',
+                    matrix: workingMatrix.map(row => [...row])
+                });
+                
+                // Forward elimination
+                for (let i = 0; i < n; i++) {
+                    // Find pivot (partial pivoting)
+                    let maxRow = i;
+                    for (let k = i + 1; k < n; k++) {
+                        if (Math.abs(workingMatrix[k][i]) > Math.abs(workingMatrix[maxRow][i])) {
+                            maxRow = k;
+                        }
+                    }
+                    
+                    // Swap rows if needed
+                    if (maxRow !== i) {
+                        [workingMatrix[i], workingMatrix[maxRow]] = [workingMatrix[maxRow], workingMatrix[i]];
+                        eliminationSteps.push({
+                            step: eliminationSteps.length,
+                            operation: `Swap R${i + 1} ↔ R${maxRow + 1} (partial pivoting)`,
+                            matrix: workingMatrix.map(row => [...row])
+                        });
+                    }
+                    
+                    // Check for zero pivot
+                    if (Math.abs(workingMatrix[i][i]) < 1e-10) {
+                        throw new Error(`Zero pivot encountered at position (${i + 1}, ${i + 1}). System may be singular.`);
+                    }
+                    
+                    // Eliminate column
+                    for (let k = i + 1; k < n; k++) {
+                        if (Math.abs(workingMatrix[k][i]) > 1e-10) {
+                            const factor = workingMatrix[k][i] / workingMatrix[i][i];
+                            
+                            // Perform row operation
+                            for (let j = i; j < workingMatrix[k].length; j++) {
+                                workingMatrix[k][j] -= factor * workingMatrix[i][j];
+                            }
+                            
+                            eliminationSteps.push({
+                                step: eliminationSteps.length,
+                                operation: `R${k + 1} ← R${k + 1} - (${factor.toFixed(3)}) × R${i + 1}`,
+                                matrix: workingMatrix.map(row => [...row])
+                            });
+                        }
+                    }
+                }
+                
+                // Back substitution
+                const solution = new Array(n);
+                for (let i = n - 1; i >= 0; i--) {
+                    solution[i] = workingMatrix[i][n]; // Start with augmented value
+                    
+                    for (let j = i + 1; j < n; j++) {
+                        solution[i] -= workingMatrix[i][j] * solution[j];
+                    }
+                    
+                    solution[i] /= workingMatrix[i][i];
+                }
+                
+                // Display steps
+                displayEliminationSteps();
+                
+                // Display final result
+                displayFinalResult(solution);
+                
+                // Show sections
+                document.getElementById('stepsSection').classList.remove('hidden');
+                document.getElementById('resultSection').classList.remove('hidden');
+                
+            } catch (error) {
+                alert('Error during elimination: ' + error.message);
+            }
+        }
+
+        // Display all elimination steps
+        function displayEliminationSteps() {
+            const stepsDiv = document.getElementById('stepsDisplay');
+            let html = '';
+            
+            for (let i = 0; i < eliminationSteps.length; i++) {
+                const step = eliminationSteps[i];
+                html += `
+                    <div class="step">
+                        <h4>Step ${step.step}</h4>
+                        <div class="step-operation">${step.operation}</div>
+                        <div class="matrix-display">
+                `;
+                
+                // Create matrix table
+                html += '<table class="matrix-table">';
+                for (let row = 0; row < step.matrix.length; row++) {
+                    html += '<tr>';
+                    for (let col = 0; col < step.matrix[row].length; col++) {
+                        const isAugmentDivider = col === step.matrix[row].length - 1;
+                        const cellClass = isAugmentDivider ? 'augment-divider' : '';
+                        const value = step.matrix[row][col].toFixed(3);
+                        html += `<td class="${cellClass}">${value}</td>`;
+                    }
+                    html += '</tr>';
+                }
+                html += '</table>';
+                
+                html += '</div></div>';
+            }
+            
+            stepsDiv.innerHTML = html;
+        }
+
+        // Display the final polynomial result
+        function displayFinalResult(coefficients) {
+            const variables = ['a', 'b', 'c', 'd', 'e', 'f'];
+            const polynomialDiv = document.getElementById('finalPolynomial');
+            const coeffDiv = document.getElementById('coefficientsDisplay');
+            
+            // Build polynomial string
+            let polynomial = 'f(x) = ';
+            let terms = [];
+            
+            for (let i = 0; i < coefficients.length; i++) {
+                const coeff = coefficients[i];
+                const power = currentDegree - i;
+                
+                if (Math.abs(coeff) < 1e-10) continue; // Skip near-zero terms
+                
+                let term = '';
+                
+                // Handle sign
+                if (terms.length > 0) {
+                    term += coeff >= 0 ? ' + ' : ' - ';
+                    term += Math.abs(coeff).toFixed(4);
+                } else {
+                    term += coeff.toFixed(4);
+                }
+                
+                // Handle power
+                if (power === 0) {
+                    // Constant term - coefficient only
+                } else if (power === 1) {
+                    term += 'x';
+                } else {
+                    term += `x^${power}`;
+                }
+                
+                terms.push(term);
+            }
+            
+            polynomial += terms.join('');
+            
+            // Display polynomial
+            polynomialDiv.innerHTML = `<div class="final-polynomial">${polynomial}</div>`;
+            
+            // Display individual coefficients
+            let coeffHtml = '<h4>Coefficient Values:</h4><ul>';
+            for (let i = 0; i < coefficients.length; i++) {
+                coeffHtml += `<li>${variables[i]} = ${coefficients[i].toFixed(6)}</li>`;
+            }
+            coeffHtml += '</ul>';
+            
+            coeffDiv.innerHTML = coeffHtml;
+        }
+
+        // Initialize the page on load
+        window.onload = function() {
+            updateInputTable();
+        };
+    </script>
 </body>
 </html>
